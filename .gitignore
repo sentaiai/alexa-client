@@ -61,3 +61,7 @@ build
 
 /projects/*
 !/projects/README.md
+
+#serverless build
+.serverless/*
+.build/*

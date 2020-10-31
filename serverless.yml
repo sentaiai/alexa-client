@@ -1,0 +1,93 @@
+#https://www.serverless.com/framework/docs/providers/aws/guide/serverless.yml/
+service: alexa-client
+# app and org for use with dashboard.serverless.com
+app: alexa-client-serverless
+
+
+# You can pin your service to only deploy with a specific Serverless version
+# Check out our docs for more details
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: eu-west-2
+  memorySize : 256
+    
+# you can add statements to the Lambda function's IAM Role here
+#  iamRoleStatements:
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:ListBucket"
+#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+#    - Effect: "Allow"
+#      Action:
+#        - "s3:PutObject"
+#      Resource:
+#        Fn::Join:
+#          - ""
+#          - - "arn:aws:s3:::"
+#            - "Ref" : "ServerlessDeploymentBucket"
+#            - "/*"
+
+# you can define service wide environment variables here
+#  environment:
+#    variable1: value1
+
+# you can add packaging information here
+package:
+  include:
+    - ./projects/**
+    - env.*
+#    - include-me-dir/**
+  exclude:
+   - scripts/**
+   - tests/**
+   - typings/**
+#    - exclude-me-dir/**
+
+functions:
+  alexa-client:
+    handler: lambda.handler
+    name: ${opt:stage, self:provider.stage, 'dev'}-alexa-client
+    description: alexa-client deployed using serverless
+    role: arn:aws:iam::393624399245:role/SentaiLambdaDynamoDbFull
+    events:
+       - http:
+          path: /{proxy+}
+          method: ANY
+
+
+#    Define function environment variables here
+    environment:
+      NODE_ENV: dev
+      PORT: 4000
+      SESSIONS_SOURCE: remote
+      SESSIONS_DYNAMO_TABLE: com.getvoiceflow.${self:provider.stage, 'dev'}.sessions
+      PROJECT_SOURCE: VF-Project-DZdWgyy6d8.json
+      VF_DATA_ENDPOINT: none
+      CODE_HANDLER_ENDPOINT: none
+      INTEGRATIONS_HANDLER_ENDPOINT: none
+      API_HANDLER_ENDPOINT: none
+      LOG_LEVEL: warn
+      MIDDLEWARE_VERBOSITY: none
+      VF_DATA_SECRET : none
+      DATADOG_API_KEY : none
+      SECRETS_PROVIDER: none #not sure why this is required
+
+
+# you can add CloudFormation resource templates here
+#resources:
+#  Resources:
+#    NewResource:
+#      Type: AWS::S3::Bucket
+#      Properties:
+#        BucketName: my-new-bucket
+#  Outputs:
+#     NewOutput:
+#       Description: "Description for the output"
+#       Value: "Some output value"
+plugins:
+  - serverless-plugin-typescript
+  - serverless-offline

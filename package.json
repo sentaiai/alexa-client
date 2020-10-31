@@ -42,6 +42,7 @@
     "moment": "^2.24.0",
     "randomstring": "^1.1.5",
     "regenerator-runtime": "^0.13.3",
+    "serverless-http": "^2.6.0",
     "talisman": "^1.1.1",
     "words-to-numbers": "^1.5.1"
   },
@@ -97,6 +98,8 @@
     "prettier-eslint-cli": "^5.0.0",
     "rimraf": "^3.0.0",
     "semantic-release": "^15.13.31",
+    "serverless-offline": "^6.8.0",
+    "serverless-plugin-typescript": "^1.1.9",
     "sinon": "^7.5.0",
     "source-map-support": "^0.5.16",
     "supertest": "^4.0.2",
@@ -104,7 +107,7 @@
     "ts-node": "^8.5.4",
     "tsconfig-paths": "^3.9.0",
     "ttypescript": "^1.5.8",
-    "typescript": "^3.9.7"
+    "typescript": "^4.0.5"
   },
   "homepage": "https://github.com/voiceflow/alexa-client#readme",
   "husky": {

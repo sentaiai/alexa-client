@@ -67,7 +67,7 @@ const AlexaManager = (services: Services, config: Config, utils = utilsObj) => {
     config.SESSIONS_SOURCE === Source.LOCAL
       ? new utils.adapters.MemoryPersistenceAdapter()
       : new utils.adapters.DynamoDbPersistenceAdapter({
-          createTable: false,
+          createTable: true,
           dynamoDBClient: services.dynamo,
           tableName: config.SESSIONS_DYNAMO_TABLE,
         });
