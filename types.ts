@@ -12,7 +12,7 @@ export interface Config {
 
   // Application secrets
   DATADOG_API_KEY: string;
-  VF_DATA_SECRET: string;
+  ADMIN_SERVER_DATA_API_TOKEN: string;
 
   DYNAMO_ENDPOINT: string | null;
   CODE_HANDLER_ENDPOINT: string;
@@ -34,6 +34,9 @@ export interface Config {
 
   PROJECT_SOURCE: string | null;
   SESSIONS_SOURCE: string | null;
+
+  MONGO_URI: string | null;
+  MONGO_DB: string | null;
 }
 
 export interface Request<P extends {} = {}> extends Express.Request<P> {

@@ -1,10 +1,10 @@
 {
-  "name": "@voiceflow/alexa-client",
+  "name": "@voiceflow/alexa-runtime",
   "description": "voiceflow alexa runtime client",
   "version": "0.1.0",
   "author": "Voiceflow",
   "bugs": {
-    "url": "https://github.com/voiceflow/alexa-client/issues"
+    "url": "https://github.com/voiceflow/alexa-runtime/issues"
   },
   "config": {
     "commitizen": {
@@ -12,12 +12,13 @@
     }
   },
   "dependencies": {
-    "@voiceflow/alexa-types": "^1.12.2",
+    "@voiceflow/alexa-types": "1.30.3",
     "@voiceflow/api-sdk": "^1.6.1",
     "@voiceflow/backend-utils": "^2.1.1",
-    "@voiceflow/client": "^1.9.0",
     "@voiceflow/common": "^6.2.0",
+    "@voiceflow/general-types": "1.7.0",
     "@voiceflow/logger": "^1.4.0",
+    "@voiceflow/runtime": "1.11.1",
     "@voiceflow/verror": "^1.1.0",
     "alexa-verifier-middleware": "^1.0.2",
     "ask-sdk": "^2.9.0",
@@ -40,6 +41,7 @@
     "lodash": "^4.17.15",
     "luxon": "^1.21.3",
     "moment": "^2.24.0",
+    "mongodb": "^3.6.3",
     "randomstring": "^1.1.5",
     "regenerator-runtime": "^0.13.3",
     "serverless-http": "^2.6.0",
@@ -65,6 +67,7 @@
     "@types/lodash": "^4.14.149",
     "@types/mocha": "^5.2.7",
     "@types/moment": "^2.13.0",
+    "@types/mongodb": "^3.5.34",
     "@types/node": "^14.0.23",
     "@types/pino": "^6.3.0",
     "@types/randomstring": "^1.1.6",
@@ -109,7 +112,7 @@
     "ttypescript": "^1.5.8",
     "typescript": "^4.0.5"
   },
-  "homepage": "https://github.com/voiceflow/alexa-client#readme",
+  "homepage": "https://github.com/voiceflow/alexa-runtime#readme",
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged",
@@ -132,7 +135,7 @@
   "prettier": "@voiceflow/prettier-config",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/voiceflow/alexa-client.git"
+    "url": "git+https://github.com/voiceflow/alexa-runtime.git"
   },
   "scripts": {
     "build": "yarn clean && ttsc --project ./tsconfig.build.json && cp yarn.lock build/",
@@ -142,7 +145,7 @@
     "lint": "eslint \"./**/*.{js,ts}\"",
     "local": "NODE_ENV=local ts-node --files -r tsconfig-paths/register start.ts",
     "local:watch": "NODE_ENV=local forever --watch -c \"ts-node --files -r tsconfig-paths/register\" start.ts",
-    "preview:check": "echo \"alexaclient\"",
+    "preview:check": "echo \"alexaruntime\"",
     "preview:new": "scripts/deploy_dev_environments.sh",
     "start": "NODE_ENV=production node --max-old-space-size=8192 build/start.js",
     "test": "NODE_ENV=test nyc ts-mocha --paths --opts mocha.opts",

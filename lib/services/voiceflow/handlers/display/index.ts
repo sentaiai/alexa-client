@@ -1,18 +1,17 @@
 import { NodeType } from '@voiceflow/alexa-types';
 import { Node } from '@voiceflow/api-sdk';
-import { HandlerFactory } from '@voiceflow/client';
+import { HandlerFactory, replaceVariables } from '@voiceflow/runtime';
 import { SupportedInterfaces } from 'ask-sdk-model';
 import _ from 'lodash';
 
 import { S } from '@/lib/constants';
 import { FullServiceMap } from '@/lib/services';
-import { regexVariables } from '@/lib/services/voiceflow/utils';
 
 import { APL_INTERFACE_NAME, ENDED_EVENT_PREFIX, EVENT_SEND_EVENT } from './constants';
 import * as events from './events';
 import DisplayResponseBuilder from './responseBuilder';
 import { Command, DisplayInfo } from './types';
-import { deepFindVideos, VideoEvent } from './utils';
+import { deepFindVideos, isVideoEvent, VideoEvent } from './utils';
 
 export { events, DisplayResponseBuilder };
 
@@ -32,15 +31,13 @@ export const getVariables = (str: string): string[] => {
 };
 
 const utilsObj = {
-  deepFindVideos,
   getVariables,
-  regexVariables,
+  deepFindVideos,
+  replaceVariables,
 };
 
 export const DisplayHandler: HandlerFactory<DisplayNode, typeof utilsObj> = (utils) => ({
-  canHandle: (node) => {
-    return !!node.display_id;
-  },
+  canHandle: (node) => !!node.display_id,
   handle: async (node, context) => {
     const supportedInterfaces: SupportedInterfaces | undefined = context.storage.get(S.SUPPORTED_INTERFACES);
     const variables = context.variables.getState();
@@ -58,7 +55,7 @@ export const DisplayHandler: HandlerFactory<DisplayNode, typeof utilsObj> = (uti
     let commands;
     if (node.apl_commands && _.isString(node.apl_commands)) {
       try {
-        commands = JSON.parse(utils.regexVariables(node.apl_commands, variables)) as Command[];
+        commands = JSON.parse(utils.replaceVariables(node.apl_commands, variables)) as Command[];
       } catch {
         // invalid JSON
       }
@@ -85,7 +82,7 @@ export const DisplayHandler: HandlerFactory<DisplayNode, typeof utilsObj> = (uti
 
     const onEndEvents = _.flatMap(results, (result) => result.item.onEnd).filter(Boolean) as VideoEvent[];
 
-    const hasOnEndEvent = onEndEvents.some((event) => event.type === EVENT_SEND_EVENT && event.arguments?.includes?.(ENDED_EVENT_PREFIX));
+    const hasOnEndEvent = onEndEvents.some((event) => event.type === EVENT_SEND_EVENT && event.arguments?.some?.(isVideoEvent(ENDED_EVENT_PREFIX)));
 
     if (hasOnEndEvent) {
       context.stack.top().setNodeID(node.nextId ?? null);

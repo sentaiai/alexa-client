@@ -1,4 +1,4 @@
-import { HandlerFactory } from '@voiceflow/client';
+import { HandlerFactory } from '@voiceflow/runtime';
 
 import { T } from '@/lib/constants';
 
@@ -14,11 +14,10 @@ export const OneShotIntentHandler: HandlerFactory<any, typeof utilsObj> = (utils
     if (context.turn.get(T.NEW_STACK) && context.getRequest()?.type === RequestType.INTENT) {
       return utils.commandHandler.canHandle(context);
     }
+
     return false;
   },
-  handle: (_, context, variables) => {
-    return utils.commandHandler.handle(context, variables);
-  },
+  handle: (_, context, variables) => utils.commandHandler.handle(context, variables),
 });
 
 export default () => OneShotIntentHandler(utilsObj);

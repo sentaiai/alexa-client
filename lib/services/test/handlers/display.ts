@@ -1,11 +1,9 @@
-import { HandlerFactory } from '@voiceflow/client';
+import { HandlerFactory } from '@voiceflow/runtime';
 
 import { DisplayNode } from '@/lib/services/voiceflow/handlers/display';
 
 const DisplayHandler: HandlerFactory<DisplayNode> = () => ({
-  canHandle: (node) => {
-    return !!node.display_id;
-  },
+  canHandle: (node) => !!node.display_id,
   handle: (node, context) => {
     context.trace.debug('__display__ - entered');
 

@@ -1,47 +1,47 @@
 import { Node } from '@voiceflow/api-sdk';
-import { Context, Store } from '@voiceflow/client';
+import { TraceType } from '@voiceflow/general-types';
+import { Interaction } from '@voiceflow/general-types/build/nodes/interaction';
+import { TraceFrame } from '@voiceflow/general-types/build/nodes/speak';
+import { Context, replaceVariables, sanitizeVariables, Store } from '@voiceflow/runtime';
 import _ from 'lodash';
 
 import { S } from '@/lib/constants';
 
-import { regexVariables, sanitizeVariables } from '../utils';
+export type NoMatchCounterStorage = number;
 
-type NoMatchNode = Node<
-  any,
-  {
-    noMatches?: string[];
-    randomize?: boolean;
-  }
->;
+type NoMatchNode = Node<any, { noMatches?: string[]; randomize?: boolean; interactions?: Interaction[] }>;
 
 export const EMPTY_AUDIO_STRING = '<audio src=""/>';
 
-const removeEmptyNoMatches = (noMatchArray?: string[]) => {
-  return noMatchArray?.filter((noMatch) => {
-    return noMatch != null && noMatch !== EMPTY_AUDIO_STRING;
-  });
-};
+const removeEmptyNoMatches = (noMatchArray?: string[]) => noMatchArray?.filter((noMatch) => noMatch != null && noMatch !== EMPTY_AUDIO_STRING);
 
 export const NoMatchHandler = () => ({
   canHandle: (node: NoMatchNode, context: Context) => {
     const nonEmptyNoMatches = removeEmptyNoMatches(node.noMatches);
-    return Array.isArray(nonEmptyNoMatches) && nonEmptyNoMatches.length > (context.storage.get(S.NO_MATCHES_COUNTER) ?? 0);
+
+    return Array.isArray(nonEmptyNoMatches) && nonEmptyNoMatches.length > (context.storage.get<NoMatchCounterStorage>(S.NO_MATCHES_COUNTER) ?? 0);
   },
   handle: (node: NoMatchNode, context: Context, variables: Store) => {
-    context.storage.produce((draft) => {
+    context.storage.produce<{ [S.NO_MATCHES_COUNTER]: NoMatchCounterStorage }>((draft) => {
       draft[S.NO_MATCHES_COUNTER] = draft[S.NO_MATCHES_COUNTER] ? draft[S.NO_MATCHES_COUNTER] + 1 : 1;
     });
 
     const nonEmptyNoMatches = removeEmptyNoMatches(node.noMatches);
-    const speak = (node.randomize ? _.sample(nonEmptyNoMatches) : nonEmptyNoMatches?.[context.storage.get(S.NO_MATCHES_COUNTER) - 1]) || '';
+    const speak =
+      (node.randomize ? _.sample(nonEmptyNoMatches) : nonEmptyNoMatches?.[context.storage.get<NoMatchCounterStorage>(S.NO_MATCHES_COUNTER)! - 1]) ||
+      '';
     const sanitizedVars = sanitizeVariables(variables.getState());
-    // replaces var values
-    const output = regexVariables(speak, sanitizedVars);
+    const output = replaceVariables(speak, sanitizedVars);
 
     context.storage.produce((draft) => {
       draft[S.OUTPUT] += output;
     });
-    context.trace.speak(output);
+
+    const choices = node?.interactions?.map((choice: { intent: string }) => ({ name: choice.intent }));
+    context.trace.addTrace<TraceFrame>({
+      type: TraceType.SPEAK,
+      payload: { message: output, choices },
+    });
 
     return node.id;
   },
