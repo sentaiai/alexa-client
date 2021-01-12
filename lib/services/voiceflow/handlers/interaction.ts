@@ -1,4 +1,5 @@
-import { SlotMapping, TraceType } from '@voiceflow/general-types';
+import { SlotMapping } from '@voiceflow/api-sdk';
+import { TraceType } from '@voiceflow/general-types';
 import { Node, TraceFrame } from '@voiceflow/general-types/build/nodes/interaction';
 import { formatIntentName, HandlerFactory } from '@voiceflow/runtime';
 
@@ -38,7 +39,7 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
       return node.id;
     }
 
-    let nextId: string | null = null;
+    let nextId: string | null | undefined;
     let variableMap: SlotMapping[] | null = null;
 
     const { intent } = request.payload;
@@ -59,7 +60,7 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
     }
 
     // check if there is a command in the stack that fulfills intent
-    if (!nextId) {
+    if (nextId === undefined) {
       if (utils.commandHandler.canHandle(context)) {
         return utils.commandHandler.handle(context, variables);
       }
@@ -72,14 +73,14 @@ export const InteractionHandler: HandlerFactory<Node, typeof utilsObj> = (utils)
     context.turn.delete(T.REQUEST);
 
     // check for noMatches to handle
-    if (!nextId && utils.noMatchHandler.canHandle(node, context)) {
+    if (nextId === undefined && utils.noMatchHandler.canHandle(node, context)) {
       return utils.noMatchHandler.handle(node, context, variables);
     }
 
     // clean up no matches counter
     context.storage.delete(S.NO_MATCHES_COUNTER);
 
-    return (nextId || node.elseId) ?? null;
+    return (nextId !== undefined ? nextId : node.elseId) || null;
   },
 });
 
